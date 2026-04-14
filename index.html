@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanderbilt Parking Preference Form – AY 2025–2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold:        #CFAE70;
+    --gold-hi:     #ECB748;
+    --oak:         #946E24;
+    --black:       #1C1C1C;
+    --dark-gray:   #777777;
+    --light-gray:  #E4E4E4;
+    --sand:        #E0D5C0;
+    --cream:       #F5F3EF;
+    --sky:         #B3C9CD;
+    --white:       #FFFFFF;
+
+    /* rank colours */
+    --rank1: #946E24;   /* oak  */
+    --rank2: #2A6496;   /* blue */
+    --rank3: #3D8B5E;   /* green */
+    --rank4: #8B3D6B;   /* plum */
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--black);
+    color: var(--white);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .header-text h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: .02em; }
+  .header-text p  { font-size: .8rem; color: var(--sand); margin-top: 2px; font-weight: 300; }
+  .header-logo {
+    height: 56px;
+    width: auto;
+    flex-shrink: 0;
+    border-radius: 4px;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 1300px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  .intro {
+    background: var(--white);
+    border-left: 5px solid var(--gold);
+    padding: 18px 22px;
+    border-radius: 4px;
+    margin-bottom: 28px;
+    font-size: .92rem;
+    line-height: 1.6;
+  }
+  .intro strong { color: var(--oak); }
+
+  /* ── IDENTITY PANEL ── */
+  .identity-panel {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: 6px;
+    padding: 22px 28px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
+  .field label { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--dark-gray); }
+  .field input {
+    border: 1.5px solid var(--light-gray);
+    border-radius: 4px;
+    padding: 9px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: .92rem;
+    color: var(--black);
+    background: var(--cream);
+    transition: border-color .2s;
+  }
+  .field input:focus { outline: none; border-color: var(--gold-hi); background: var(--white); }
+  .field input[readonly] { background: var(--sand); color: var(--dark-gray); cursor: default; }
+
+  /* ── RANK LEGEND ── */
+  .rank-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .rank-legend span { font-size: .8rem; font-weight: 600; color: var(--dark-gray); margin-right: 4px; }
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    font-size: 1rem; font-weight: 700;
+    color: var(--white);
+    box-shadow: 0 2px 6px rgba(0,0,0,.25);
+  }
+  .rb1 { background: var(--rank1); }
+  .rb2 { background: var(--rank2); }
+  .rb3 { background: var(--rank3); }
+  .rb4 { background: var(--rank4); }
+  .rank-label { font-size: .82rem; font-weight: 400; color: var(--black); margin-right: 10px; }
+
+  /* ── MAP WRAPPER ── */
+  .map-section {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+  .map-section h2 {
+    font-size: 1rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--oak);
+    margin-bottom: 14px;
+    border-bottom: 2px solid var(--sand);
+    padding-bottom: 8px;
+  }
+  .map-hint {
+    font-size: .82rem; color: var(--dark-gray);
+    margin-bottom: 14px;
+  }
+
+  /* ── THE MAP CONTAINER ── */
+  .map-container {
+    position: relative;
+    width: 100%;
+    /* aspect ratio matches a 24×36 landscape layout — swap to your actual image */
+    aspect-ratio: 36 / 24;
+    background: #e8ede4;
+    border: 2px solid var(--light-gray);
+    border-radius: 4px;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* Drop your parking map image here — just replace the src in the JS or uncomment: */
+  .map-container img.map-bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* placeholder campus grid – remove once real image is in */
+  .map-placeholder {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(rgba(148,110,36,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,110,36,.06) 1px, transparent 1px),
+      #d8e4d0;
+    background-size: 40px 40px;
+    z-index: 0;
+  }
+  .map-placeholder::after {
+    content: "📍  Replace with your parking map image (see instructions below)";
+    position: absolute;
+    bottom: 12px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(28,28,28,.65);
+    color: #fff;
+    font-size: .78rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* ── ZONE BUTTONS ── */
+  .zone {
+    position: absolute;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px;
+    border: 2.5px solid rgba(255,255,255,.7);
+    background: rgba(207,174,112,.55);
+    backdrop-filter: blur(2px);
+    font-family: 'Inter', sans-serif;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--black);
+    cursor: pointer;
+    transition: transform .12s, box-shadow .12s, background .15s, border-color .15s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,.18);
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .zone:hover:not(.locked) {
+    transform: scale(1.07);
+    box-shadow: 0 4px 14px rgba(0,0,0,.28);
+    background: rgba(236,183,72,.75);
+    border-color: var(--gold-hi);
+  }
+  .zone.selected { border: 2.5px solid rgba(255,255,255,.9); }
+  .zone.locked   { cursor: default; }
+
+  .zone .zone-name  { font-size: .68rem; font-weight: 600; }
+  .zone .rank-num   {
+    font-size: 1.05rem; font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+
+  /* rank colour fills */
+  .zone[data-rank="1"] { background: rgba(148,110,36,.80); color: #fff; border-color: #fff; }
+  .zone[data-rank="2"] { background: rgba(42,100,150,.80);  color: #fff; border-color: #fff; }
+  .zone[data-rank="3"] { background: rgba(61,139,94,.80);   color: #fff; border-color: #fff; }
+  .zone[data-rank="4"] { background: rgba(139,61,107,.80);  color: #fff; border-color: #fff; }
+
+  /* ── SELECTIONS SUMMARY ── */
+  .summary-section {
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+  .summary-section h2 {
+    font-size: 1rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--oak);
+    margin-bottom: 14px;
+    border-bottom: 2px solid var(--sand);
+    padding-bottom: 8px;
+  }
+  .choices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .choice-card {
+    border: 2px dashed var(--light-gray);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color .2s, background .2s;
+  }
+  .choice-card.filled {
+    border-style: solid;
+    background: var(--cream);
+  }
+  .choice-card.rank1.filled { border-color: var(--rank1); }
+  .choice-card.rank2.filled { border-color: var(--rank2); }
+  .choice-card.rank3.filled { border-color: var(--rank3); }
+  .choice-card.rank4.filled { border-color: var(--rank4); }
+  .choice-num {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; font-weight: 800; color: var(--white);
+    flex-shrink: 0;
+  }
+  .c1 { background: var(--rank1); }
+  .c2 { background: var(--rank2); }
+  .c3 { background: var(--rank3); }
+  .c4 { background: var(--rank4); }
+  .choice-info .choice-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--dark-gray); font-weight: 600; }
+  .choice-info .choice-zone  { font-size: 1rem; font-weight: 700; color: var(--black); }
+  .choice-info .choice-empty { font-size: .85rem; color: var(--dark-gray); font-style: italic; }
+
+  /* ── SUBMIT ── */
+  .submit-row {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .btn-submit {
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    padding: 13px 36px;
+    font-family: 'Inter', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-submit:hover  { background: var(--oak); }
+  .btn-submit:disabled { background: var(--dark-gray); cursor: not-allowed; }
+  .btn-clear {
+    background: none;
+    color: var(--dark-gray);
+    border: 1.5px solid var(--light-gray);
+    border-radius: 5px;
+    padding: 12px 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: .88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-clear:hover { border-color: var(--dark-gray); color: var(--black); }
+
+  .status-msg {
+    font-size: .85rem;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: 5px;
+    display: none;
+  }
+  .status-msg.success { background: #dff0d8; color: #2d6a1f; display: block; }
+  .status-msg.error   { background: #f2dede; color: #8b1a1a; display: block; }
+
+  /* ── INSTRUCTIONS ── */
+  .instructions {
+    background: var(--sand);
+    border-radius: 6px;
+    padding: 18px 24px;
+    font-size: .82rem;
+    line-height: 1.7;
+    color: var(--black);
+    margin-top: 32px;
+  }
+  .instructions h3 { font-size: .88rem; font-weight: 700; margin-bottom: 8px; color: var(--oak); }
+  .instructions code {
+    background: rgba(0,0,0,.08); padding: 1px 5px; border-radius: 3px;
+    font-family: monospace; font-size: .82rem;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 14px 20px; }
+    .page  { padding: 20px 14px 48px; }
+    .identity-panel { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-text">
+    <h1>Vanderbilt University — Parking and Commuter Services</h1>
+    <p>Parking Open Enrollment &nbsp;·&nbsp; AY 2026–2027</p>
+  </div>
+  <img class="header-logo" src="C:\Users\ferralme\OneDrive - Vanderbilt\Desktop\presentation tools\For Screen\Dimensional_V_Black_Lockup.png" alt="Vanderbilt University">
+</header>
+
+<div class="page">
+
+  <!-- INTRO -->
+  <div class="intro">
+    <strong>Instructions:</strong> Select up to <strong>four</strong> parking zones in order of preference by clicking directly on the zone on the map below.
+    Your <strong>1st choice</strong> will be highlighted in gold, followed by blue (2nd), green (3rd), and plum (4th).
+    Click a selected zone again to <strong>deselect</strong> it. All four choices are recommended but not required.
+    Assignments are made based on availability and seniority — your preferences are not guaranteed.
+  </div>
+
+  <!-- IDENTITY — hidden inputs carry data to submission -->
+  <input type="hidden" id="vunetid">
+  <input type="hidden" id="fullname">
+  <input type="hidden" id="dept">
+  <input type="hidden" id="email">
+
+  <!-- Greeting banner -->
+  <div class="intro" style="font-size:1rem;">
+    👋 Hello, <strong id="greetingName">there</strong>! Please click a zone on the map below to rank your parking preferences.
+  </div>
+
+  <!-- MAP -->
+  <div class="map-section">
+    <h2>Campus Parking Map — Click a Zone to Rank It</h2>
+    <div class="rank-legend">
+      <span>Rank:</span>
+      <div class="rank-badge rb1">1</div><span class="rank-label">1st Choice</span>
+      <div class="rank-badge rb2">2</div><span class="rank-label">2nd Choice</span>
+      <div class="rank-badge rb3">3</div><span class="rank-label">3rd Choice</span>
+      <div class="rank-badge rb4">4</div><span class="rank-label">4th Choice</span>
+    </div>
+    <p class="map-hint">Tip: Click a ranked zone a second time to remove it from your selections.</p>
+
+    <div class="map-container" id="mapContainer">
+      <img class="map-bg" src="parking_map.png" alt="Vanderbilt Campus Parking Map">
+
+      <!-- ══════════════════════════════════════════════════
+           ZONE POSITIONS  (left%, top%, width%, height%)
+           These are laid out as a schematic grid placeholder.
+           Once you add your real map image, drag-adjust the
+           left/top/width/height values to match each lot.
+           ══════════════════════════════════════════════════ -->
+
+      <!-- Row 1: Zones 1–6 -->
+      <div class="zone" id="zone-1" style="right:47%;  top:13%;  width:5%; height:5%;" data-zone="1" onclick="selectZone(this)"><span class="zone-name">Zone 1</span></div>
+      <div class="zone" id="zone-2" style="left:50%; top:8%;  width:5%; height:5%;" data-zone="2" onclick="selectZone(this)"><span class="zone-name">Zone 2</span></div>
+      <div class="zone" id="zone-3" style="left:56%; top:7%;  width:5%; height:5%;" data-zone="3" onclick="selectZone(this)"><span class="zone-name">Zone 3</span></div>
+      <div class="zone" id="zone-4" style="left:56%; top:13%;  width:5%; height:5%;" data-zone="4" onclick="selectZone(this)"><span class="zone-name">Zone 4</span></div>
+      <div class="zone" id="zone-5" style="left:51%; top:20%;  width:5%; height:8%;" data-zone="5" onclick="selectZone(this)"><span class="zone-name">Zone 5</span></div>
+      <div class="zone" id="zone-6" style="left:60%; top:30%;  width:5%; height:5%;" data-zone="6" onclick="selectZone(this)"><span class="zone-name">Zone 6</span></div>
+
+      <!-- Row 2: Zones 7–11 -->
+      <div class="zone" id="zone-7" style="left:57%;  top:37%; width:5%; height:5%;" data-zone="7" onclick="selectZone(this)"><span class="zone-name">Zone 7</span></div>
+      <div class="zone" id="zone-8" style="left:62%; top:46%; width:10%; height:5%;" data-zone="8" onclick="selectZone(this)"><span class="zone-name">Zone 8</span></div>
+      <div class="zone" id="zone-9" style="left:63.5%; top:40%; width:4%; height:5%;" data-zone="9" onclick="selectZone(this)"><span class="zone-name">Zone 9</span></div>
+      <div class="zone" id="zone-10" style="left:69.5%; top:60%; width:4%; height:10%;" data-zone="10" onclick="selectZone(this)"><span class="zone-name">Zone 10</span></div>
+      <div class="zone" id="zone-11" style="left:64.5%; top:63%; width:4%; height:10%;" data-zone="11" onclick="selectZone(this)"><span class="zone-name">Zone 11</span></div>
+
+      <!-- Row 3: Zones 13–17 (no Zone 12) -->
+      <div class="zone" id="zone-13" style="left:57%;  top:77%; width:5%; height:5%;" data-zone="13" onclick="selectZone(this)"><span class="zone-name">Zone 13</span></div>
+      <div class="zone" id="zone-14" style="left:55%; top:60%; width:4%; height:5%;" data-zone="14" onclick="selectZone(this)"><span class="zone-name">Zone 14</span></div>
+      <div class="zone" id="zone-15" style="left:31.5%; top:76%; width:5%; height:5%;" data-zone="15" onclick="selectZone(this)"><span class="zone-name">Zone 15</span></div>
+      <div class="zone" id="zone-16" style="left:31.5%; top:82%; width:5%; height:5%;" data-zone="16" onclick="selectZone(this)"><span class="zone-name">Zone 16</span></div>
+      <div class="zone" id="zone-17" style="left:32.5%; top:60%; width:4%; height:5%;" data-zone="17" onclick="selectZone(this)"><span class="zone-name">Zone 17</span></div>
+
+      <!-- Row 4: Zones 25–27 -->
+      <div class="zone" id="zone-25" style="left:14%;  top:50%; width:5%; height:5%;" data-zone="25" onclick="selectZone(this)"><span class="zone-name">Zone 25</span></div>
+      <div class="zone" id="zone-26" style="left:14%; top:79%; width:5%; height:5%;" data-zone="26" onclick="selectZone(this)"><span class="zone-name">Zone 26</span></div>
+      <div class="zone" id="zone-27" style="left:80%; top:20%; width:7%; height:7%;" data-zone="27" onclick="selectZone(this)"><span class="zone-name">Zone 27</span></div>
+    </div>
+  </div>
+
+  <!-- SELECTION SUMMARY -->
+  <div class="summary-section">
+    <h2>Your Selections</h2>
+    <div class="choices-grid">
+      <div class="choice-card" id="card-1">
+        <div class="choice-num c1">1</div>
+        <div class="choice-info">
+          <div class="choice-label">1st Choice</div>
+          <div class="choice-zone" id="display-1"><span class="choice-empty">Not selected</span></div>
+        </div>
+      </div>
+      <div class="choice-card" id="card-2">
+        <div class="choice-num c2">2</div>
+        <div class="choice-info">
+          <div class="choice-label">2nd Choice</div>
+          <div class="choice-zone" id="display-2"><span class="choice-empty">Not selected</span></div>
+        </div>
+      </div>
+      <div class="choice-card" id="card-3">
+        <div class="choice-num c3">3</div>
+        <div class="choice-info">
+          <div class="choice-label">3rd Choice</div>
+          <div class="choice-zone" id="display-3"><span class="choice-empty">Not selected</span></div>
+        </div>
+      </div>
+      <div class="choice-card" id="card-4">
+        <div class="choice-num c4">4</div>
+        <div class="choice-info">
+          <div class="choice-label">4th Choice</div>
+          <div class="choice-zone" id="display-4"><span class="choice-empty">Not selected</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-row">
+    <button class="btn-submit" id="submitBtn" onclick="submitForm()">Submit Preferences</button>
+    <button class="btn-clear" onclick="clearAll()">Clear All</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <!-- SWAP INSTRUCTIONS -->
+  <!--<div class="instructions">
+    <h3>🗺  Parking Map Setup — Next Step</h3>
+    <ol style="padding-left:18px; margin-top:6px;">
+      <li>✅ <em>Convert PDF to image</em></li>
+      <li>✅ <em>Place <code>parking_map.png</code> in the same folder as this HTML file</em></li>
+      <li>✅ <em>Uncomment the <code>&lt;img&gt;</code> tag and remove the placeholder</em></li>
+      <li><strong>⬅ YOU ARE HERE:</strong> Open the file in a browser, then press <strong>F12</strong> to open DevTools. Click the <strong>Inspector / Elements</strong> tab, find any <code>&lt;div class="zone"&gt;</code> element, and adjust its <code>left</code>, <code>top</code>, <code>width</code>, and <code>height</code> percentages until each overlay sits on top of the correct lot in the map image. Once happy, copy the adjusted values back into the HTML and save.</li>
+      <li>Once all zones are aligned, save the file. The overlays are fully responsive — they will scale correctly on any screen.</li>
+    </ol>
+    <br>
+    <h3>📊  Data / Backend integration</h3>
+    <p>The <code>submitForm()</code> function (see <code>&lt;script&gt;</code>) currently builds a JSON payload with the structure:</p>
+    <pre style="background:rgba(0,0,0,.06);padding:10px;border-radius:4px;margin-top:6px;font-size:.8rem;overflow-x:auto;">
+[
+  { "ID": "smithj", "Zone": "4",  "Choice": 1 },
+  { "ID": "smithj", "Zone": "11", "Choice": 2 },
+  { "ID": "smithj", "Zone": "7",  "Choice": 3 },
+  { "ID": "smithj", "Zone": "25", "Choice": 4 }
+]</pre>
+    <p style="margin-top:8px;">Point the <code>fetch()</code> call to your endpoint (Django, Flask, Node, Google Apps Script, etc.) and load directly into a pandas DataFrame with <code>pd.DataFrame(data)</code>. Columns: <strong>ID, Zone, Choice</strong>.</p>
+  </div>
+
+</div><!-- /page -->-->
+
+<script>
+// ─────────────────────────────────────────────
+//  State
+// ─────────────────────────────────────────────
+const MAX_CHOICES = 4;
+// choices[0] = zone number (string) for rank 1, etc.
+const choices = [null, null, null, null];
+
+// ─────────────────────────────────────────────
+//  Read VUnetID from URL param (email link)
+//  e.g.  parking_form.html?id=smithj
+// ─────────────────────────────────────────────
+(function seedFromURL() {
+  const params = new URLSearchParams(window.location.search);
+
+  const id   = params.get('id')   || params.get('vunetid') || params.get('ID')   || '';
+  const name = params.get('name') || params.get('Name')    || params.get('NAME') || '';
+  const dept = params.get('dept') || params.get('Dept')    || params.get('DEPT') || '';
+
+  function lock(fieldId, value) {
+    if (!value) return;
+    const el = document.getElementById(fieldId);
+    el.value = value;
+    el.setAttribute('readonly', true);
+  }
+
+  if (id) {
+    lock('vunetid', id);
+    lock('email', id + '@vanderbilt.edu');
+  }
+  if (name) lock('fullname', name);
+  if (dept) lock('dept', dept);
+
+  // Populate greeting — show name if available, otherwise email, otherwise generic
+  const greetingEl = document.getElementById('greetingName');
+  if (greetingEl) {
+    if (name) {
+      greetingEl.textContent = name;
+    } else if (id) {
+      greetingEl.textContent = id + '@vanderbilt.edu';
+    }
+    // if neither, it stays as "there"
+  }
+})();
+
+// ─────────────────────────────────────────────
+//  Zone interaction
+// ─────────────────────────────────────────────
+function selectZone(el) {
+  const zone = el.dataset.zone;
+  const currentRank = parseInt(el.dataset.rank || '0', 10);
+
+  if (currentRank) {
+    // Already selected → deselect and compact the array
+    choices[currentRank - 1] = null;
+    compactChoices();
+  } else {
+    // Not selected → assign next available rank
+    const nextSlot = choices.indexOf(null);
+    if (nextSlot === -1) return; // all 4 filled
+    choices[nextSlot] = zone;
+  }
+
+  renderZones();
+  renderSummary();
+}
+
+function compactChoices() {
+  // Remove nulls in the middle so ranks stay sequential
+  const filled = choices.filter(c => c !== null);
+  for (let i = 0; i < MAX_CHOICES; i++) {
+    choices[i] = filled[i] || null;
+  }
+}
+
+function renderZones() {
+  // Clear all zones first
+  document.querySelectorAll('.zone').forEach(el => {
+    el.removeAttribute('data-rank');
+    el.classList.remove('selected', 'locked');
+    // restore label
+    const nameSpan = el.querySelector('.zone-name');
+    const rankSpan = el.querySelector('.rank-num');
+    if (rankSpan) rankSpan.remove();
+  });
+
+  const allFilled = choices.every(c => c !== null);
+
+  choices.forEach((zone, idx) => {
+    if (!zone) return;
+    const rank = idx + 1;
+    const el = document.getElementById('zone-' + zone);
+    if (!el) return;
+    el.setAttribute('data-rank', rank);
+    el.classList.add('selected');
+    // add rank number badge inside zone
+    let rankSpan = el.querySelector('.rank-num');
+    if (!rankSpan) {
+      rankSpan = document.createElement('span');
+      rankSpan.className = 'rank-num';
+      el.appendChild(rankSpan);
+    }
+    rankSpan.textContent = rank;
+  });
+
+  // lock unselected zones once all 4 slots are filled
+  if (allFilled) {
+    document.querySelectorAll('.zone:not([data-rank])').forEach(el => {
+      el.classList.add('locked');
+    });
+  }
+}
+
+function renderSummary() {
+  const labels = ['1st Choice', '2nd Choice', '3rd Choice', '4th Choice'];
+  choices.forEach((zone, idx) => {
+    const rank = idx + 1;
+    const card    = document.getElementById('card-' + rank);
+    const display = document.getElementById('display-' + rank);
+    if (zone) {
+      display.innerHTML = '<strong>Zone ' + zone + '</strong>';
+      card.classList.add('filled', 'rank' + rank);
+    } else {
+      display.innerHTML = '<span class="choice-empty">Not selected</span>';
+      card.classList.remove('filled', 'rank' + rank);
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
+//  Clear
+// ─────────────────────────────────────────────
+function clearAll() {
+  for (let i = 0; i < MAX_CHOICES; i++) choices[i] = null;
+  renderZones();
+  renderSummary();
+  document.getElementById('statusMsg').className = 'status-msg';
+}
+
+// ─────────────────────────────────────────────
+//  Submit → builds ID/Zone/Choice dataframe rows
+// ─────────────────────────────────────────────
+function submitForm() {
+  const vunetid  = document.getElementById('vunetid').value.trim();
+  const fullname = document.getElementById('fullname').value.trim();
+  const dept     = document.getElementById('dept').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const msg      = document.getElementById('statusMsg');
+
+  // Validation
+  const filled = choices.filter(c => c !== null);
+  if (filled.length === 0) {
+    showStatus('Please select at least one zone before submitting.', 'error'); return;
+  }
+
+  // Build the dataframe-ready payload  →  rows: ID, Zone, Choice
+  const rows = filled.map((zone, idx) => ({
+    ID:     vunetid,
+    Name:   fullname,
+    Dept:   dept,
+    Email:  email,
+    Zone:   zone,
+    Choice: idx + 1
+  }));
+
+  console.log('Submission payload:', JSON.stringify(rows, null, 2));
+
+  // ── GOOGLE APPS SCRIPT ENDPOINT ──────────────────────────
+  fetch('https://script.google.com/macros/s/AKfycbyFt7RBMe5IJRb_qNP0xsBPtFhmDLiD3Zr_tI0ZkVlec9BSS6dyarDDSSVlohCLMTr4fA/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(rows)
+  })
+  .then(() => {
+    showStatus('✅  Preferences submitted! Thank you, <strong>' + (fullname || vunetid) + '</strong>. You selected ' + filled.length + ' zone(s).', 'success');
+    document.getElementById('submitBtn').disabled = true;
+  })
+  .catch(() => showStatus('⚠️  Network error — please check your connection and try again.', 'error'));
+  // ────────────────────────────────────────────────────────
+}
+
+function showStatus(html, type) {
+  const el = document.getElementById('statusMsg');
+  el.innerHTML = html;
+  el.className = 'status-msg ' + type;
+}
+</script>
+</body>
+</html>
