@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanderbilt Parking Preference Form – AY 2026–2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #CFAE70; --gold-hi: #ECB748; --oak: #946E24; --black: #1C1C1C;
+    --dark-gray: #777777; --light-gray: #E4E4E4; --sand: #E0D5C0;
+    --cream: #F5F3EF; --white: #FFFFFF;
+    --rank1: #946E24; --rank2: #2A6496; --rank3: #3D8B5E; --rank4: #8B3D6B;
+  }
+  body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--black); min-height: 100vh; }
+  header { background: var(--black); color: var(--white); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 4px solid var(--gold); }
+  .header-text h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: .02em; }
+  .header-text p  { font-size: .8rem; color: var(--sand); margin-top: 2px; font-weight: 300; }
+  .header-logo { height: 56px; width: auto; flex-shrink: 0; border-radius: 4px; }
+  .page { max-width: 1300px; margin: 0 auto; padding: 32px 24px 60px; }
+  .intro { background: var(--white); border-left: 5px solid var(--gold); padding: 18px 22px; border-radius: 4px; margin-bottom: 28px; font-size: .92rem; line-height: 1.6; }
+  .intro strong { color: var(--oak); }
+  .rank-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .rank-legend span { font-size: .8rem; font-weight: 600; color: var(--dark-gray); margin-right: 4px; }
+  .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; font-size: 1rem; font-weight: 700; color: var(--white); box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  .rb1 { background: var(--rank1); } .rb2 { background: var(--rank2); } .rb3 { background: var(--rank3); } .rb4 { background: var(--rank4); }
+  .rank-label { font-size: .82rem; font-weight: 400; color: var(--black); margin-right: 10px; }
+  .map-section { background: var(--white); border: 1px solid var(--light-gray); border-radius: 6px; padding: 20px; margin-bottom: 28px; }
+  .map-section h2 { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--oak); margin-bottom: 14px; border-bottom: 2px solid var(--sand); padding-bottom: 8px; }
+  .map-hint { font-size: .82rem; color: var(--dark-gray); margin-bottom: 14px; }
+  .map-container { position: relative; width: 100%; aspect-ratio: 800/534; border: 2px solid var(--light-gray); border-radius: 4px; overflow: hidden; user-select: none; background: #e8ede4; }
+  .map-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; z-index: 0; }
+  .map-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 10; overflow: visible; }
+  .zone-group { cursor: pointer; }
+  .zone-group rect, .zone-group polygon { fill: rgba(207,174,112,.30); stroke: rgba(255,255,255,.95); stroke-width: 3; transition: fill .15s, stroke .15s; }
+  .zone-group:hover:not(.locked) rect, .zone-group:hover:not(.locked) polygon { fill: rgba(236,183,72,.60); stroke: #fff; stroke-width: 4; }
+  .zone-group[data-rank="1"] rect, .zone-group[data-rank="1"] polygon { fill: rgba(207,174,112,.30); stroke: #fff; stroke-width: 3; }
+  .zone-group[data-rank="2"] rect, .zone-group[data-rank="2"] polygon { fill: rgba(207,174,112,.30); stroke: #fff; stroke-width: 3; }
+  .zone-group[data-rank="3"] rect, .zone-group[data-rank="3"] polygon { fill: rgba(207,174,112,.30); stroke: #fff; stroke-width: 3; }
+  .zone-group[data-rank="4"] rect, .zone-group[data-rank="4"] polygon { fill: rgba(207,174,112,.30); stroke: #fff; stroke-width: 3; }
+  .zone-group.locked { cursor: default; }
+  .zone-group.locked rect, .zone-group.locked polygon { fill: rgba(207,174,112,.12); stroke: rgba(255,255,255,.3); }
+  .zone-label { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 800; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.7); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; text-anchor: middle; dominant-baseline: middle; }
+  .summary-section { background: var(--white); border: 1px solid var(--light-gray); border-radius: 6px; padding: 20px 24px; margin-bottom: 28px; }
+  .summary-section h2 { font-size: 1rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--oak); margin-bottom: 14px; border-bottom: 2px solid var(--sand); padding-bottom: 8px; }
+  .choices-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .choice-card { border: 2px dashed var(--light-gray); border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; transition: border-color .2s, background .2s; }
+  .choice-card.filled { border-style: solid; background: var(--cream); }
+  .choice-card.rank1.filled, .choice-card.rank2.filled, .choice-card.rank3.filled, .choice-card.rank4.filled { border-color: var(--black); }
+  .choice-num { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; color: var(--white); flex-shrink: 0; }
+  .c1, .c2, .c3, .c4 { background: var(--black); transition: background .2s; }
+  .choice-info .choice-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--dark-gray); font-weight: 600; }
+  .choice-info .choice-zone  { font-size: 1rem; font-weight: 700; color: var(--black); }
+  .choice-info .choice-empty { font-size: .85rem; color: var(--dark-gray); font-style: italic; }
+  .submit-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn-submit { background: var(--black); color: var(--white); border: none; border-radius: 5px; padding: 13px 36px; font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 700; letter-spacing: .04em; cursor: pointer; transition: background .2s; }
+  .btn-submit:hover { background: var(--oak); }
+  .btn-submit:disabled { background: var(--dark-gray); cursor: not-allowed; }
+  .btn-clear { background: none; color: var(--dark-gray); border: 1.5px solid var(--light-gray); border-radius: 5px; padding: 12px 22px; font-family: 'Inter', sans-serif; font-size: .88rem; font-weight: 600; cursor: pointer; transition: border-color .2s, color .2s; }
+  .btn-clear:hover { border-color: var(--dark-gray); color: var(--black); }
+  .status-msg { font-size: .85rem; font-weight: 500; padding: 10px 16px; border-radius: 5px; display: none; }
+  .status-msg.success { background: #dff0d8; color: #2d6a1f; display: block; }
+  .status-msg.error   { background: #f2dede; color: #8b1a1a; display: block; }
+  @media (max-width: 640px) { header { padding: 14px 20px; } .page { padding: 20px 14px 48px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-text">
+    <h1>Vanderbilt University &mdash; Parking and Commuter Services</h1>
+    <p>Parking Open Enrollment &nbsp;&middot;&nbsp; AY 2026&ndash;2027</p>
+  </div>
+  <img class="header-logo" src="Dimensional_V_Black_Lockup.png" alt="Vanderbilt University">
+</header>
+<div class="page">
+  <div class="intro">
+    <strong>Instructions:</strong> Select up to <strong>four</strong> parking zones in order of preference by clicking directly on the zone on the map below.
+    Click a selected zone again to <strong>deselect</strong> it. All four choices are recommended but not required.
+    Assignments are made based on availability and seniority &mdash; your preferences are not guaranteed.
+    For a more detailed map of campus visit <a href="PLACEHOLDER" target="_blank">PLACEHOLDER</a>.
+  </div>
+  <input type="hidden" id="vunetid">
+  <input type="hidden" id="fullname">
+  <input type="hidden" id="dept">
+  <input type="hidden" id="email">
+  <div class="intro" style="font-size:1rem;">
+    &#128075; Hello, <strong id="greetingName">there</strong>! Please click a zone on the map below to rank your parking preferences.
+  </div>
+  <div class="summary-section">
+    <h2>Your Selections</h2>
+    <div class="choices-grid">
+      <div class="choice-card" id="card-1"><div class="choice-num c1">1</div><div class="choice-info"><div class="choice-label">1st Choice</div><div class="choice-zone" id="display-1"><span class="choice-empty">Not selected</span></div></div></div>
+      <div class="choice-card" id="card-2"><div class="choice-num c2">2</div><div class="choice-info"><div class="choice-label">2nd Choice</div><div class="choice-zone" id="display-2"><span class="choice-empty">Not selected</span></div></div></div>
+      <div class="choice-card" id="card-3"><div class="choice-num c3">3</div><div class="choice-info"><div class="choice-label">3rd Choice</div><div class="choice-zone" id="display-3"><span class="choice-empty">Not selected</span></div></div></div>
+      <div class="choice-card" id="card-4"><div class="choice-num c4">4</div><div class="choice-info"><div class="choice-label">4th Choice</div><div class="choice-zone" id="display-4"><span class="choice-empty">Not selected</span></div></div></div>
+    </div>
+  </div>
+  <div class="map-section">
+    <h2>Campus Parking Map &mdash; Click a Zone to Rank It</h2>
+
+    <p class="map-hint">Tip: Click a ranked zone a second time to remove it from your selections.</p>
+    <div class="map-container" id="mapContainer">
+      <img class="map-bg" src="2026-04-15_Parking Map_Zones.png" alt="Vanderbilt Campus Parking Map">
+      <svg class="map-svg" viewBox="0 0 800 534" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ZONE 1 -->
+<g class="zone-group" id="zone-1" data-zone="1" onclick="selectZone(this)">
+          <rect x="480" y="63" width="20" height="20" rx="2"></rect>
+          <text class="zone-label" x="490" y="74">1</text>
+        </g>
+        
+        <!-- ZONE 2 -->
+ <g class="zone-group" id="zone-2" data-zone="2" onclick="selectZone(this)">
+          <rect x="515" y="50" width="20" height="20" rx="2"></rect>
+          <text class="zone-label" x="525" y="62">2</text>
+        </g>
+        <!-- ZONE 3 (3 lots) -->
+        <g class="zone-group" id="zone-3" data-zone="3" onclick="selectZone(this)">
+          <rect x="540" y="35" width="20" height="20" rx="2"></rect>
+          
+          
+          <text class="zone-label" x="550" y="45">3</text>
+        </g>
+        <!-- ZONE 4 (2 lots) -->
+        <g class="zone-group" id="zone-4" data-zone="4" onclick="selectZone(this)">
+          <rect x="540" y="65" width="44" height="28" rx="2"></rect>
+          <text class="zone-label" x="560" y="80">4</text>
+        </g>
+        <!-- ZONE 5 -->
+        <g class="zone-group" id="zone-5" data-zone="5" onclick="selectZone(this)">
+          <rect x="520" y="92" width="26" height="50" rx="2" transform="rotate(-35, 533, 117)"></rect>
+          <text class="zone-label" x="535" y="118">5</text>
+        </g>
+        <!-- ZONE 6 (2 lots) -->
+        <g class="zone-group" id="zone-6" data-zone="6" onclick="selectZone(this)">
+          <rect x="580" y="168" width="40" height="26" rx="2"></rect>
+          <text class="zone-label" x="598" y="185">6</text>
+        </g>
+        <!-- ZONE 7 (2 lots) -->
+        <g class="zone-group" id="zone-7" data-zone="7" onclick="selectZone(this)">
+          <rect x="620" y="260" width="36" height="28" rx="2"></rect>
+          <rect x="655" y="285" width="40" height="22" rx="2"></rect>
+          <text class="zone-label" x="640" y="275">7</text>
+        </g>
+        <!-- ZONE 8 (2 lots) -->
+        <g class="zone-group" id="zone-8" data-zone="8" onclick="selectZone(this)">
+          <rect x="665" y="350" width="25" height="65" rx="2" transform="rotate(11, 680, 382)"></rect>
+          <text class="zone-label" x="675" y="380">8</text>
+        </g>
+        <!-- ZONE 9 -->
+        <g class="zone-group" id="zone-9" data-zone="9" onclick="selectZone(this)">
+          <rect x="640" y="360" width="20" height="120" rx="2" transform="rotate(9, 680, 382)"></rect>
+          <text class="zone-label" x="645" y="410">9</text>
+        </g>
+        <!-- ZONE 10 -->
+        <g class="zone-group" id="zone-10" data-zone="10" onclick="selectZone(this)">
+          <rect x="570" y="460" width="15" height="20" rx="2"></rect>
+          <text class="zone-label" x="578" y="470">10</text>
+        </g>
+        <!-- ZONE 11 -->
+        <g class="zone-group" id="zone-11" data-zone="11" onclick="selectZone(this)">
+          <rect x="535" y="360" width="15" height="65" rx="2" transform="rotate(9,680,382)"></rect>
+          <text class="zone-label" x="545" y="365">11</text>
+        </g>
+                <!-- ZONE 12 -->
+        <g class="zone-group" id="zone-12" data-zone="12" onclick="selectZone(this)">
+          <rect x="330" y="490" width="70" height="40" rx="2" transform="rotate(9,680,382)"></rect>
+          <text class="zone-label" x="365" y="510">12</text>
+        </g>
+        <!-- ZONE 13 -->
+        <g class="zone-group" id="zone-13" data-zone="13" onclick="selectZone(this)">
+          <rect x="330" y="345" width="38" height="45" rx="2"></rect>
+          <text class="zone-label" x="345" y="370">13</text>
+        </g>
+        <!-- ZONE 14 -->
+        <g class="zone-group" id="zone-14" data-zone="14" onclick="selectZone(this)">
+          <rect x="250" y="8" width="70" height="100" rx="2" transform="rotate(-30,680,382)"></rect>
+          <text class="zone-label" x="176" y="299">14</text>
+        </g>
+        <!-- ZONE 15 (2 lots) -->
+        <g class="zone-group" id="zone-15" data-zone="15" onclick="selectZone(this)">
+          <rect x="150" y="460" width="46" height="26" rx="2"></rect>
+            <text class="zone-label" x="170" y="475">15</text>
+        </g>
+
+      </svg>
+    </div>
+  </div>
+  <div class="submit-row">
+    <button class="btn-submit" id="submitBtn" onclick="submitForm()">Submit Preferences</button>
+    <button class="btn-clear" onclick="clearAll()">Clear All</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+</div>
+<script>
+const MAX_CHOICES = 4;
+const choices = [null, null, null, null];
+const RANK_COLORS = ['#1C1C1C', '#1C1C1C', '#1C1C1C', '#1C1C1C'];
+const NS = 'http://www.w3.org/2000/svg';
+
+(function seedFromURL() {
+  const p = new URLSearchParams(window.location.search);
+  const id   = p.get('id')   || p.get('vunetid') || p.get('ID')   || '';
+  const name = p.get('name') || p.get('Name')    || p.get('NAME') || '';
+  const dept = p.get('dept') || p.get('Dept')    || p.get('DEPT') || '';
+  function sh(fid, val) { if (!val) return; const el = document.getElementById(fid); if (el) el.value = val; }
+  if (id)   { sh('vunetid', id); sh('email', id + '@vanderbilt.edu'); }
+  if (name)   sh('fullname', name);
+  if (dept)   sh('dept', dept);
+  const g = document.getElementById('greetingName');
+  if (g) g.textContent = name || (id ? id + '@vanderbilt.edu' : 'there');
+})();
+
+function centroid(groupEl) {
+  const r = groupEl.querySelector('rect');
+  if (r) return { x: +r.getAttribute('x') + +r.getAttribute('width')/2, y: +r.getAttribute('y') + +r.getAttribute('height')/2 };
+  const poly = groupEl.querySelector('polygon');
+  if (poly) {
+    const pts = poly.getAttribute('points').trim().split(/[\s,]+/);
+    let sx=0, sy=0, n=0;
+    for (let i=0; i+1<pts.length; i+=2) { sx += +pts[i]; sy += +pts[i+1]; n++; }
+    return { x: sx/n, y: sy/n };
+  }
+  return { x:0, y:0 };
+}
+
+function selectZone(el) {
+  const zone = el.dataset.zone;
+  const currentRank = parseInt(el.dataset.rank || '0', 10);
+  if (currentRank) { choices[currentRank - 1] = null; compactChoices(); }
+  else { const nextSlot = choices.indexOf(null); if (nextSlot === -1) return; choices[nextSlot] = zone; }
+  renderZones(); renderSummary();
+}
+
+function compactChoices() {
+  const filled = choices.filter(c => c !== null);
+  for (let i = 0; i < MAX_CHOICES; i++) choices[i] = filled[i] || null;
+}
+
+function renderZones() {
+  document.querySelectorAll('.zone-group').forEach(el => {
+    el.removeAttribute('data-rank'); el.classList.remove('locked');
+    el.querySelectorAll('.dyn').forEach(n => n.remove());
+  });
+  const allFilled = choices.every(c => c !== null);
+  choices.forEach((zone, idx) => {
+    if (!zone) return;
+    const rank = idx + 1;
+    const el = document.getElementById('zone-' + zone);
+    if (!el) return;
+    el.setAttribute('data-rank', rank);
+    const { x, y } = centroid(el);
+    const circle = document.createElementNS(NS, 'circle');
+    circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', 13);
+    circle.setAttribute('fill', '#1C1C1C'); circle.setAttribute('stroke', '#fff');
+    circle.setAttribute('stroke-width', '2'); circle.setAttribute('pointer-events', 'none');
+    circle.classList.add('dyn');
+    const text = document.createElementNS(NS, 'text');
+    text.setAttribute('x', x); text.setAttribute('y', y);
+    text.setAttribute('text-anchor', 'middle'); text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('fill', '#fff'); text.setAttribute('font-size', '13');
+    text.setAttribute('font-weight', '800'); text.setAttribute('font-family', 'Inter, sans-serif');
+    text.setAttribute('pointer-events', 'none'); text.classList.add('dyn');
+    text.textContent = rank;
+    el.appendChild(circle); el.appendChild(text);
+  });
+  // Turn all ranked circles yellow with black text
+  document.querySelectorAll('.zone-group[data-rank] circle.dyn').forEach(c => { c.setAttribute('fill', '#ECB748'); c.setAttribute('stroke', '#1C1C1C'); });
+  document.querySelectorAll('.zone-group[data-rank] text.dyn').forEach(t => { t.setAttribute('fill', '#1C1C1C'); });
+  if (allFilled) document.querySelectorAll('.zone-group:not([data-rank])').forEach(el => el.classList.add('locked'));
+}
+
+function renderSummary() {
+  choices.forEach((zone, idx) => {
+    const rank = idx + 1;
+    const card = document.getElementById('card-' + rank);
+    const display = document.getElementById('display-' + rank);
+    if (zone) { display.innerHTML = '<strong>Zone ' + zone + '</strong>'; card.classList.add('filled', 'rank' + rank); card.querySelector('.choice-num').style.background = '#ECB748'; card.querySelector('.choice-num').style.color = '#1C1C1C'; }
+    else { display.innerHTML = '<span class="choice-empty">Not selected</span>'; card.classList.remove('filled','rank1','rank2','rank3','rank4'); card.querySelector('.choice-num').style.background = '#1C1C1C'; card.querySelector('.choice-num').style.color = '#fff'; }
+  });
+}
+
+function clearAll() {
+  for (let i = 0; i < MAX_CHOICES; i++) choices[i] = null;
+  renderZones(); renderSummary();
+  document.getElementById('statusMsg').className = 'status-msg';
+}
+
+function submitForm() {
+  const vunetid  = document.getElementById('vunetid').value.trim();
+  const fullname = document.getElementById('fullname').value.trim();
+  const dept     = document.getElementById('dept').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const filled = choices.filter(c => c !== null);
+  if (filled.length === 0) { showStatus('Please select at least one zone before submitting.', 'error'); return; }
+  const rows = filled.map((zone, idx) => ({ ID: vunetid, Name: fullname, Dept: dept, Email: email, Zone: zone, Choice: idx + 1 }));
+  console.log('Submission payload:', JSON.stringify(rows, null, 2));
+  fetch('https://script.google.com/macros/s/AKfycbyBLB0G143WEFrhefiI6itLnKfNGhO2Cf09MYviOuGD6vpec-8FWM9Pz7vAbNT5AqQcig/exec', {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(rows)
+  })
+  .then(() => {
+    showStatus('&#x2705; Preferences submitted! Thank you, <strong>' + (fullname || vunetid || 'there') + '</strong>. You selected ' + filled.length + ' zone(s).', 'success');
+    document.getElementById('submitBtn').disabled = true;
+  })
+  .catch(() => showStatus('&#x26A0;&#xFE0F; Network error &mdash; please check your connection and try again.', 'error'));
+}
+
+function showStatus(html, type) {
+  const el = document.getElementById('statusMsg');
+  el.innerHTML = html; el.className = 'status-msg ' + type;
+}
+</script>
+</body>
+</html>
+
+
+
