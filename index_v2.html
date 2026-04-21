@@ -73,7 +73,7 @@
     <h1>Vanderbilt University &mdash; Parking and Commuter Services</h1>
     <p>Parking Open Enrollment &nbsp;&middot;&nbsp; AY 2026&ndash;2027</p>
   </div>
-  <img class="header-logo" src="Dimensional_V_Black_Lockup.png" alt="Vanderbilt University">
+  <img class="header-logo" src="https://vanderbilt365.sharepoint.com/sites/ParkingEnrollment_FY27/Shared%20Documents/parking-form/Dimensional_V_Black_Lockup.png" alt="Vanderbilt University">
 </header>
 <div class="page">
   <div class="intro">
@@ -103,7 +103,7 @@
 
     <p class="map-hint">Tip: Click a ranked zone a second time to remove it from your selections.</p>
     <div class="map-container" id="mapContainer">
-      <img class="map-bg" src="2026-04-15_Parking Map_Zones_web.png" alt="Vanderbilt Campus Parking Map">
+      <img class="map-bg" src="https://vanderbilt365.sharepoint.com/sites/ParkingEnrollment_FY27/Shared%20Documents/parking-form/2026-04-15_Parking%20Map_Zones_web.png" alt="Vanderbilt Campus Parking Map">
       <svg class="map-svg" viewBox="0 0 800 534" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
 
         <!-- ZONE 1 -->
@@ -296,14 +296,24 @@ function submitForm() {
   const email    = document.getElementById('email').value.trim();
   const filled = choices.filter(c => c !== null);
   if (filled.length === 0) { showStatus('Please select at least one zone before submitting.', 'error'); return; }
-  const rows = filled.map((zone, idx) => ({ ID: vunetid, Name: fullname, Dept: dept, Email: email, Zone: zone, Choice: idx + 1 }));
-  console.log('Submission payload:', JSON.stringify(rows, null, 2));
-  fetch('https://script.google.com/macros/s/AKfycbyBLB0G143WEFrhefiI6itLnKfNGhO2Cf09MYviOuGD6vpec-8FWM9Pz7vAbNT5AqQcig/exec', {
-    method: 'POST', mode: 'no-cors',
+  const payload = {
+    id:         vunetid,
+    name:       fullname,
+    email:      email,
+    department: dept,
+    choice1:    choices[0] ? String(choices[0]) : '',
+    choice2:    choices[1] ? String(choices[1]) : '',
+    choice3:    choices[2] ? String(choices[2]) : '',
+    choice4:    choices[3] ? String(choices[3]) : '',
+    timestamp:  new Date().toISOString()
+  };
+  const FLOW_URL = 'https://defaultba5a7f39e3be4ab3b45067fa80faec.ad.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/fd6080e6c870431fa53fc1769683cb2f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=n8OcMYj9kUEhex9-OWTlUF7Tljf7jHIuJJkB4jZIeV0';
+  fetch(FLOW_URL, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(rows)
+    body: JSON.stringify(payload)
   })
-  .then(() => {
+  .then(res => {
     showStatus('&#x2705; Preferences submitted! Thank you, <strong>' + (fullname || vunetid || 'there') + '</strong>. You selected ' + filled.length + ' zone(s).', 'success');
     document.getElementById('submitBtn').disabled = true;
   })
